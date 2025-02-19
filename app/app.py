@@ -17,12 +17,12 @@ def create_app(config=None) -> Flask:
         app.config.from_object(get_config_by_name(config))
 
     # Initialize extensions
-    initialize_db(app)
+    # initialize_db(app)
 
     # Register blueprints
     initialize_route(app)
 
     # Initialize Swagger
-    initialize_swagger(app)
+    # initialize_swagger(app)
 
     return app
