@@ -59,8 +59,7 @@ def list_files():
         description: Internal Server Error.  An error occurred while processing the request.
 
     """
-    # folder_id = {os.environ.get('FOLDER_ID')}
-    folder_id = '1YadO9nFH_pJKlToh3lMdceKWOIg6vgRG'
+    folder_id = os.environ.get('FOLDER_ID')
     if not folder_id:
         return make_response(jsonify({'error': 'folder_id is required'}), 400)
 
