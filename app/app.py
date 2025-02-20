@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from app.config.config import get_config_by_name
 from app.initialize_functions import initialize_route, initialize_db, initialize_swagger
@@ -12,12 +13,19 @@ def create_app(config=None) -> Flask:
     Returns:
         A Flask application instance.
     """
+    config = os.getenv('FLASK_ENV') or config
+    
     app = Flask(__name__)
+
     if config:
         app.config.from_object(get_config_by_name(config))
 
     # Initialize extensions
-    # initialize_db(app)
+    if os.path.exists('instance/development.db'):
+        print('Development database exists.')
+    else:
+        print('Creating Database.')
+        initialize_db(app)
 
     # Register blueprints
     initialize_route(app)

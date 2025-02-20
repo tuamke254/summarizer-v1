@@ -27,7 +27,6 @@ class MainController:
             logging.error(f"Authentication failed: {e}")
             return None
 
-   
     def build_drive_service(self, credentials):
         try:
             service = build('drive', 'v3', credentials=credentials)
@@ -59,4 +58,5 @@ class MainController:
         except Exception as e:
             logging.error(f"Error listing files: {e}")
             return None
+    
     
