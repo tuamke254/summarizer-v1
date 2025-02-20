@@ -2,6 +2,8 @@ from flask import current_app as app
 from google.cloud import secretmanager
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from app.modules.main.models import Transactions
+from app.db.db import db
 import os
 import json
 import logging
@@ -59,4 +61,37 @@ class MainController:
             logging.error(f"Error listing files: {e}")
             return None
     
-    
+    def insert_record(self, files):
+        try:
+            for file in files:
+                transaction = Transactions(
+                    file_id=file.get('id'),
+                    file_name=file.get('name'),
+                    file_timestamp=file.get('createdTime'),
+                    file_status='Pending'
+                )
+                db.session.add(transaction)
+            db.session.commit()
+            print("Record inserted successfully")
+            return True
+        except Exception as e:
+            logging.error(f"Error inserting record: {e}")
+            db.session.rollback()
+            return False
+        
+    def get_record(self, file_id):
+        try:
+            record = Transactions.query.filter_by(file_id=file_id).first()
+            if record:
+                return {
+                    'file_id': record.file_id,
+                    'file_name': record.file_name,
+                    'file_timestamp': record.file_timestamp,
+                    'file_status': record.file_status
+                }
+            else:
+                return None
+        except Exception as e:
+            logging.error(f"Error retrieving record: {e}")
+            return None
+

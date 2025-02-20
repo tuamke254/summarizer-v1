@@ -8,7 +8,6 @@ def initialize_route(app: Flask):
     with app.app_context():
         app.register_blueprint(main_bp, url_prefix='/api/v1/main')
 
-
 def initialize_db(app: Flask):
     with app.app_context():
         db.init_app(app)

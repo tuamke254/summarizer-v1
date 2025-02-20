@@ -1,6 +1,7 @@
 from flask import Blueprint, make_response, jsonify, request
 from .controller import MainController
 import os
+import json
 
 
 main_bp = Blueprint('main', __name__)
@@ -74,7 +75,37 @@ def list_files():
     files = main_controller.list_files(request, service, folder_id)
     if not files:
         return make_response(jsonify({'error': 'Error listing files'}), 500)
+    
+    # return make_response(main_controller.insert_record(files))
+    main_controller.insert_record(files)
 
-    return make_response(jsonify({'files': files}))
+    json_data = make_response(jsonify({'files': files}))
+   
+    return json_data
 
+
+@main_bp.route('/records', methods=['GET'])
+def get_record():
+    """Get records from the database.
+    ---
+    tags:
+      - Database
+    responses:
+      200:
+        description: A list of records from the database.
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: The ID of the record.
+              name:
+                type: string
+                description: The name of the record.
+    """
+    records = main_controller.get_record('1_HDiirwRmVoSWsj1VIGVQMhhK4HJzUOV')
+    return make_response(records)
+    # return make_response(jsonify(records))
 

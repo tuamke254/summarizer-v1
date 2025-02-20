@@ -21,11 +21,7 @@ def create_app(config=None) -> Flask:
         app.config.from_object(get_config_by_name(config))
 
     # Initialize extensions
-    if os.path.exists('instance/development.db'):
-        print('Development database exists.')
-    else:
-        print('Creating Database.')
-        initialize_db(app)
+    initialize_db(app)
 
     # Register blueprints
     initialize_route(app)
