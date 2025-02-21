@@ -1,8 +1,7 @@
-from flask import Blueprint, make_response, jsonify
+from flask import Blueprint, make_response, jsonify, request
 from .controller import TranscriptsController
 from app.modules.auth.controller import AuthController
 import os
-from flask import request
 
 
 transcripts_bp = Blueprint('transcripts', __name__)
@@ -66,7 +65,7 @@ def get_new_transcript():
     if not folder_id:
         return make_response(jsonify({'error': 'folder_id is required'}), 400)
 
-    credentials = auth_controller.auth(request)
+    credentials = auth_controller.auth()
     if not credentials:
         return make_response(jsonify({'error': 'Authentication failed'}), 401)
 

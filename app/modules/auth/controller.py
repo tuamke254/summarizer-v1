@@ -3,6 +3,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import logging
+import json
 import os
 
 logging.basicConfig(level=logging.ERROR)
@@ -11,7 +12,7 @@ class AuthController:
     def index(self):
         return {'message':'Hello, World!'}
     
-    def auth(self, request):
+    def auth(self):
         """
         Authenticates the request using Google Cloud Platform (GCP) service account credentials.
 
