@@ -102,3 +102,37 @@ class TranscriptsController:
         except Exception as e:
             logging.error(f"Error retrieving record: {e}")
             return None
+
+    def get_content_transcript(self, service):
+        """
+        Retrieve content transcripts from a service for transactions with a 'Pending' file status.
+
+        This method queries the Transactions table for records with a 'Pending' file status.
+        For each pending transaction, it retrieves the corresponding file content from the provided service
+        and compiles a list of transcripts.
+
+        Args:
+            service: An authenticated service object that provides access to the file content.
+
+        Returns:
+            list: A list of transcripts if there are pending transactions, otherwise None.
+
+        Raises:
+            Exception: If there is an error retrieving the transcripts, it logs the error and returns None.
+        """
+        try:
+            record = Transactions.query.filter_by(file_status='Pending').first()
+            if record:
+                transcripts = []
+                for record in Transactions.query.filter_by(file_status='Pending').all():
+                    file_id = record.file_id
+                    request = service.files().get_media(fileId=file_id)
+                    transcript = request.execute()
+                    transcripts.append(transcript)
+                return transcripts
+            else:
+                logging.info("No pending transcripts found.")
+                return None
+        except Exception as e:
+            logging.error(f"Error retrieving transcripts: {e}")
+            return None    

@@ -18,5 +18,5 @@ class Transactions(db.Model):
     file_name = Column(String(50))
     file_timestamp = Column(String(50))
     file_status = Column(String(50))
-    
+
 # Add more models as needed
