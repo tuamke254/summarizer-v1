@@ -41,7 +41,7 @@ def summary():
     if not service:
         return make_response(jsonify(data='Unauthorized'), 401)
     
-    transcripts = transcripts_controller.get_content(service)
+    transcripts = transcripts_controller.get_content_transcript(service)
     if not transcripts:
         return make_response(jsonify(data='No new transcripts'), 200)
     response = {}
