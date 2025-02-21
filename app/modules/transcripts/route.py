@@ -1,12 +1,14 @@
-from flask import Blueprint, make_response, jsonify, request
-from .controller import MainController
+from flask import Blueprint, make_response, jsonify
+from .controller import TranscriptsController
+from app.modules.auth.controller import AuthController
 import os
-import json
+from flask import request
 
 
-main_bp = Blueprint('main', __name__)
-main_controller = MainController()
-@main_bp.route('/', methods=['GET'])
+transcripts_bp = Blueprint('transcripts', __name__)
+transcripts_controller = TranscriptsController()
+auth_controller = AuthController()
+@transcripts_bp.route('/', methods=['GET'])
 def index():
     """ Example endpoint with simple greeting.
     ---
@@ -25,11 +27,11 @@ def index():
                   type: string
                   example: "Hello World!"
     """
-    result=main_controller.index()
+    result=transcripts_controller.index()
     return make_response(jsonify(data=result))
 
-@main_bp.route('/files', methods=['GET'])
-def list_files():
+@transcripts_bp.route('/new', methods=['GET'])
+def get_new_transcript():
     """List files in a Google Drive folder.
     ---
     tags:
@@ -64,35 +66,30 @@ def list_files():
     if not folder_id:
         return make_response(jsonify({'error': 'folder_id is required'}), 400)
 
-    credentials = main_controller.auth(request)
+    credentials = auth_controller.auth(request)
     if not credentials:
         return make_response(jsonify({'error': 'Authentication failed'}), 401)
 
-    service = main_controller.build_drive_service(credentials)
+    service = auth_controller.build_drive_service(credentials)
     if not service:
         return make_response(jsonify({'error': 'Error building Drive service'}), 500)
 
-    files = main_controller.list_files(request, service, folder_id)
+    files = transcripts_controller.get_new_transcript(request, service, folder_id)
     if not files:
         return make_response(jsonify({'error': 'Error listing files'}), 500)
     
-    # Insert record to the database
-    main_controller.insert_record(files)
+    transcripts_controller.insert_new_transcript(files)
+    return make_response(jsonify(data=files))
 
-    json_data = make_response(jsonify({'files': files}))
-   
-    return json_data
-
-
-@main_bp.route('/records', methods=['GET'])
-def get_record():
-    """Get pending transaction records from the database.
+@transcripts_bp.route('/pending', methods=['GET'])
+def get_pending_transcripts():
+    """List pending transcripts.
     ---
     tags:
-      - Database
+      - Transcripts
     responses:
       200:
-        description: A list of records from the database.
+        description: A list of pending transcripts.
         schema:
           type: array
           items:
@@ -100,14 +97,25 @@ def get_record():
             properties:
               id:
                 type: integer
-                description: The ID of the record.
-              name:
+                description: The ID of the transcript.
+              file_id:
                 type: string
-                description: The name of the record.
-    """
-    records = main_controller.get_record()
-    if not records:
-        return make_response(jsonify({'error': 'Error getting records'}), 500)
-    
-    return make_response(records)
+                description: The ID of the file.
+              file_name:
+                type: string
+                description: The name of the file.
+              file_timestamp:
+                type: string
+                description: The timestamp when the file was created.
+              file_status:
+                type: string
+                description: The status of the file.
+      500:
+        description: Internal Server Error.  An error occurred while processing the request.
 
+    """
+    transcripts = transcripts_controller.get_pending_transcript()
+    if not transcripts:
+        return make_response(jsonify({'error': 'Error listing transcripts'}), 500)
+    
+    return make_response(jsonify(data=transcripts))

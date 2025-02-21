@@ -1,45 +1,14 @@
-from flask import current_app as app
-from google.cloud import secretmanager
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from app.modules.main.models import Transactions
-from app.db.db import db
-import os
-import json
 import logging
+from app.db.models import Transactions
 
-logging.basicConfig(level=logging.ERROR)
 
-class MainController:
+class TranscriptsController:
     def index(self):
-        return {'message': 'Hello, World!'}
+        return {'message':'Hello, World!'}
     
-    def auth(self, request):
-        try:
-            # Retrieve the GCP service account key from Google Secret Manager
-            client = secretmanager.SecretManagerServiceClient()
-            name = f"projects/{os.environ.get('PROJECT_ID')}/secrets/{os.environ.get('SECRET_NAME')}/versions/latest"
-            response = client.access_secret_version(name=name)
-            payload = response.payload.data.decode('UTF-8')
-            credentials = service_account.Credentials.from_service_account_info(json.loads(payload))
-
-            return credentials
-
-        except Exception as e:
-            logging.error(f"Authentication failed: {e}")
-            return None
-
-    def build_drive_service(self, credentials):
-        try:
-            service = build('drive', 'v3', credentials=credentials)
-            return service
-        except Exception as e:
-            logging.error(f"Error building Drive service: {e}")
-            return None
-    
-    def list_files(self, request, service, folder_id):
+    def get_new_transcript(self, request, service, folder_id):
         """
-        List files in a specified Google Drive folder and compare against transaction records.
+        List new transcripts in a Google Drive folder and compare against transaction records.
 
         Args:
             service: Authorized Google Drive service instance.
@@ -67,8 +36,23 @@ class MainController:
         except Exception as e:
             logging.error(f"Error listing files: {e}")
             return None
-    
-    def insert_record(self, files):
+        
+    def insert_new_transcript(self, files):
+        """
+        Inserts new transcript records into the database.
+
+        Args:
+            files (list): A list of dictionaries, where each dictionary contains
+                          the keys 'id', 'name', and 'createdTime' representing
+                          the file's ID, name, and creation timestamp respectively.
+
+        Returns:
+            bool: True if the records were inserted successfully, False otherwise.
+
+        Raises:
+            Exception: Logs any exception that occurs during the database transaction
+                       and rolls back the session.
+        """
         try:
             for file in files:
                 transaction = Transactions(
@@ -86,7 +70,22 @@ class MainController:
             db.session.rollback()
             return False
         
-    def get_record(self):
+    def get_pending_transcript(self):
+        """
+        Retrieves the first pending transcript record from the Transactions table.
+
+        This method queries the Transactions table for the first record with a 
+        'Pending' file_status. If such a record is found, it returns a dictionary 
+        containing the file_id, file_name, file_timestamp, and file_status of the 
+        record. If no pending records are found, it logs an informational message 
+        and returns None. In case of an exception during the query, it logs an 
+        error message and returns None.
+
+        Returns:
+            dict: A dictionary containing the file_id, file_name, file_timestamp, 
+                  and file_status of the pending record if found.
+            None: If no pending records are found or an error occurs during the query.
+        """
         try:
             record = Transactions.query.filter_by(file_status='Pending').first()
             if record:
@@ -102,4 +101,3 @@ class MainController:
         except Exception as e:
             logging.error(f"Error retrieving record: {e}")
             return None
-
