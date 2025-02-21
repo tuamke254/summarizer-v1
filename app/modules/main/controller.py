@@ -39,24 +39,31 @@ class MainController:
     
     def list_files(self, request, service, folder_id):
         """
-        List files in a specified Google Drive folder.
+        List files in a specified Google Drive folder and compare against transaction records.
 
         Args:
             service: Authorized Google Drive service instance.
             folder_id: ID of the folder to list files from.
 
         Returns:
-            List of files in the specified folder.
+            List of new files in the specified folder.
         """
         try:
             query = f"'{folder_id}' in parents"
             results = service.files().list(
                 q=query, pageSize=10, fields="nextPageToken, files(id, name, createdTime)").execute()
             items = results.get('files', [])
-            return items
-        except Exception as e:
-            print(f"Error listing files: {e}")
-            return None
+            
+            new_files = []
+            for item in items:
+                if not Transactions.query.filter_by(file_id=item['id']).first():
+                    new_files.append(item)
+            
+            if not new_files:
+                logging.info("No new files in the drive")
+                return None
+            
+            return new_files
         except Exception as e:
             logging.error(f"Error listing files: {e}")
             return None
@@ -72,7 +79,7 @@ class MainController:
                 )
                 db.session.add(transaction)
             db.session.commit()
-            print("Record inserted successfully")
+            logging.info("Record inserted successfully")
             return True
         except Exception as e:
             logging.error(f"Error inserting record: {e}")
@@ -81,7 +88,7 @@ class MainController:
         
     def get_record(self, file_id):
         try:
-            record = Transactions.query.filter_by(file_id=file_id).first()
+            record = Transactions.query.filter_by(file_id=file_id, file_status='Pending').first()
             if record:
                 return {
                     'file_id': record.file_id,
@@ -90,6 +97,7 @@ class MainController:
                     'file_status': record.file_status
                 }
             else:
+                logging.info("No unprocessed files found")
                 return None
         except Exception as e:
             logging.error(f"Error retrieving record: {e}")
