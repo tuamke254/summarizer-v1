@@ -1,7 +1,7 @@
-from flask import Blueprint, make_response, jsonify, request
+from flask import Blueprint, make_response, jsonify
 from .controller import ProcessorController
-from auth.controller import AuthController
-from transcripts.controller import TranscriptsController
+from app.modules.auth.controller import AuthController
+from app.modules.transcripts.controller import TranscriptsController
 
 # Initialize the controllers
 processor_controller = ProcessorController()
@@ -33,7 +33,7 @@ def index():
     result=processor_controller.index()
     return make_response(jsonify(data=result))
 
-@processor_bp.route('/summary', methods=['POST'])
+@processor_bp.route('/summary', methods=['GET'])
 def generate_summary():
   """ Generate a summary of the transcripts.
   ---

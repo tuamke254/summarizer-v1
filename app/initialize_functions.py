@@ -1,9 +1,9 @@
-from flask import Flask
-from app.modules.auth.route import auth_bp
 from app.modules.transcripts.route import transcripts_bp
+from app.modules.auth.route import auth_bp
 from app.modules.processor.route import processor_bp
-from app.db.db import db
+from flask import Flask
 from flasgger import Swagger
+from app.db.db import db
 
 
 def initialize_route(app: Flask):

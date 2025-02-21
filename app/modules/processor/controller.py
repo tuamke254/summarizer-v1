@@ -16,7 +16,7 @@ palm_parameters = {
 }
 
 class ProcessorController:
-    def __init__(self, prompts_file='prompts.json'):
+    def __init__(self, prompts_file='app/modules/processor/prompts.json'):
         # Load prompts from a JSON file
         with open(prompts_file, 'r') as file:
             self.prompts = json.load(file)

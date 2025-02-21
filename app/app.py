@@ -27,6 +27,6 @@ def create_app(config=None) -> Flask:
     initialize_route(app)
 
     # Initialize Swagger
-    # initialize_swagger(app)
+    initialize_swagger(app)
 
     return app
