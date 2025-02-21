@@ -76,7 +76,7 @@ def list_files():
     if not files:
         return make_response(jsonify({'error': 'Error listing files'}), 500)
     
-    # return make_response(main_controller.insert_record(files))
+    # Insert record to the database
     main_controller.insert_record(files)
 
     json_data = make_response(jsonify({'files': files}))

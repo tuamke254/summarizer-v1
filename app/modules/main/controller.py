@@ -51,7 +51,7 @@ class MainController:
         try:
             query = f"'{folder_id}' in parents"
             results = service.files().list(
-                q=query, pageSize=10, fields="nextPageToken, files(id, name, mimeType, createdTime)").execute()
+                q=query, pageSize=10, fields="nextPageToken, files(id, name, createdTime)").execute()
             items = results.get('files', [])
             return items
         except Exception as e:
