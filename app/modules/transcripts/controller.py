@@ -1,4 +1,5 @@
 import logging
+from app.db.db import db
 from app.db.models import Transactions
 
 
