@@ -9,7 +9,7 @@ LOCATION = os.environ.get("LOCATION")
 
 
 class ProcessorController:
-    def __init__(self, prompts_file=PROMPTS, project=PROMPTS, location=LOCATION):
+    def __init__(self, prompts_file=PROMPTS, project=PROJECT, location=LOCATION):
         # Load prompts from a JSON file
         with open(prompts_file, 'r') as file:
             self.prompts = json.load(file)
