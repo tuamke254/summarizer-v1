@@ -2,6 +2,10 @@ from flask import Blueprint, make_response, jsonify
 from .controller import ProcessorController
 from app.modules.auth.controller import AuthController
 from app.modules.transcripts.controller import TranscriptsController
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 # Initialize the controllers
 processor_controller = ProcessorController()
@@ -103,7 +107,15 @@ def generate_summary():
   
   response = []
   for transcript in transcripts:
-    summary = processor_controller.meeting_minutes(transcript)
-    response.append(summary)
+    try:
+      summary = processor_controller.meeting_minutes(transcript)
+      transcripts_controller.update_transcript_status(summary['file_id'], 'Processing')
+      response.append(summary)
+    except Exception as e:
+      transcripts_controller.update_transcript_status(transcript['file_id'], 'Error')
+      logging.error(f"Error processing record: {e}")
+      continue
   
+  transcripts_controller.update_transcript_status(transcript['file_id'], 'Processed')
+  logging.info("Summary generated successfully")
   return make_response(jsonify(summary=response))

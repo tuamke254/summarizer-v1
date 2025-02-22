@@ -137,4 +137,33 @@ class TranscriptsController:
         except Exception as e:
             logging.error(f"Error retrieving transcripts: {e}")
             return None
-  
+
+    def update_transcript_status(self, file_id, status):
+        """
+        Update the status of a transcript record in the Transactions table.
+
+        Args:
+            file_id (str): The ID of the transcript file.
+            status (str): The new status to update the record with.
+
+        Returns:
+            bool: True if the record was updated successfully, False otherwise.
+
+        Raises:
+            Exception: Logs any exception that occurs during the database transaction
+                       and rolls back the session.
+        """
+        try:
+            record = Transactions.query.filter_by(file_id=file_id).first()
+            if record:
+                record.file_status = status
+                db.session.commit()
+                logging.info("Record updated successfully")
+                return True
+            else:
+                logging.info("Record not found")
+                return False
+        except Exception as e:
+            logging.error(f"Error updating record: {e}")
+            db.session.rollback()
+            return False
