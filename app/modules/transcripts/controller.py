@@ -121,12 +121,12 @@ class TranscriptsController:
             Exception: If there is an error retrieving the transcripts, it logs the error and returns None.
         """
         try:
-            record = Transactions.query.filter_by(file_status='Pending').first()
-            if record:
+            records = Transactions.query.filter_by(file_status='Pending').all()
+            if records:
                 transcripts = []
-                for record in Transactions.query.filter_by(file_status='Pending').all():
+                for record in records:
                     file_id = record.file_id
-                    request = service.files().get_media(fileId=file_id)
+                    request = service.files().export(fileId=file_id, mimeType='text/plain')
                     transcript = request.execute()
                     transcripts.append(transcript)
                 return transcripts
@@ -135,4 +135,5 @@ class TranscriptsController:
                 return None
         except Exception as e:
             logging.error(f"Error retrieving transcripts: {e}")
-            return None    
+            return None
+  
