@@ -12,8 +12,9 @@ transcripts_controller = TranscriptsController()
 processor_bp = Blueprint('processor', __name__)
 
 @processor_bp.route('/', methods=['GET'])
+# API Endpoint Test Method
 def index():
-    """ Example endpoint with simple greeting.
+    """ Test endpoint with simple greeting.
     ---
     tags:
       - Example API

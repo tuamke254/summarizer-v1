@@ -4,6 +4,7 @@ from app.db.models import Transactions
 
 
 class TranscriptsController:
+    # API Endpoint Test Method
     def index(self):
         return {'message':'Hello, World!'}
     

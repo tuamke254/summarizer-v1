@@ -4,12 +4,17 @@ from app.modules.auth.controller import AuthController
 import os
 
 
-transcripts_bp = Blueprint('transcripts', __name__)
+# Initialize the controllers
 transcripts_controller = TranscriptsController()
 auth_controller = AuthController()
+
+# Initialize the Blueprint for the transcripts module
+transcripts_bp = Blueprint('transcripts', __name__)
+
 @transcripts_bp.route('/', methods=['GET'])
+# API Endpoint Test Method
 def index():
-    """ Example endpoint with simple greeting.
+    """ Test endpoint with simple greeting.
     ---
     tags:
       - Example API
